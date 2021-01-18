@@ -5,7 +5,7 @@
 4 rem the code was based on an example
 5 rem from the commodore 64c personal
 6 rem computer system guide.
-7 rem see http://bit.ly/c64sprites
+7 rem see http://bit.ly/3qt4Y99
 9 rem =================================
 
 10 rem global variables ***************
