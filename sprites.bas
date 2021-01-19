@@ -1,29 +1,48 @@
 0 rem =================================
 1 rem sprite demo v1 by s0ren lund
-2 rem based on code from an article
-3 rem about sprites on c64brain.com.
-4 rem the code was based on an example
+2 rem inspired by an article about
+3 rem sprites on c64brain.com. code in
+4 rem the article was based on an code
 5 rem from the commodore 64c personal
 6 rem computer system guide.
-7 rem see http://bit.ly/3qt4Y99
+7 rem see https://bit.ly/3qt4Y99
 9 rem =================================
 
 10 rem global variables ***************
 20 dim px(4): rem sprites x coordinates
 30 dim py(4): rem sprites y coordinates
-40 s=12288: rem sprite data address
-50 v=53248: rem vic-ii base address 
+40 dim xs(4): rem sprites x set hi bit
+50 dim xc(4): rem sprites x clr hi bit
+60 xs(0)=16:xs(1)=32:xs(2)=64:xs(3)=128
+70 xc(0)=239:xc(1)=223:xc(2)=191:xc(3)=127
+80 s=12288: rem sprite data address
+90 v=53248: rem vic-ii base address
 
 100 rem main program ******************
 110 gosub 1000: rem init display
 120 gosub 1100: rem print intro text
 130 gosub 1200: rem sprite setup
 140 sys 58692: rem clear screen
-150 gosub 1400: rem move sprites
-160 gosub 1500: rem place sprites
-170 for i=0 to 1000: next
-180 poke v+21,0: rem hide all sprites
-190 end 
+150 gosub 1600: rem init sprite pos.
+160 gosub 1700: rem set sprite coords.
+170 for ii=0 to 89
+180 gosub 1400: rem move sprites diag.
+190 gosub 1700: rem set sprite coords.
+200 next
+210 for ii=0 to 39
+220 gosub 1500: rem move sprites horiz.
+230 gosub 1700: rem set sprite coords.
+240 next
+250 for ii=0 to 500: next
+260 b=128
+270 for ii=0 to 3
+280 poke v+23,b
+290 for jj=0 to 30: next
+300 poke v+21,peek(v+21)-b
+310 b=b/2
+320 for jj=0 to 100: next
+330 next
+340 end
 
 1000 rem sub: init display ************
 1010 sys 58692: rem clear_screen
@@ -36,7 +55,7 @@
 1080 next
 1090 return
 
-1100 rem sub: print intro text
+1100 rem sub: print intro text ********
 1110 c=peek(646): rem save text color
 1120 print chr$(17): rem move down
 1130 print " sprites demo";
@@ -67,30 +86,35 @@
 1370 next
 1380 return
 
-1400 rem sub: move sprites ************
-1405 pokev+16,0
-1410 poke v+10,100: rem spr. 5 x coord.
-1420 poke v+13,100: rem spr. 6 y coord.
-1430 for z=0 to 255
-1440 poke v+14,z: rem sprite 7 x coord.
-1450 poke v+15,z: rem sprite 7 x coord.
-1460 poke v+12,z: rem sprite 6 x coord.
-1470 poke v+11,z: rem sprite 5 y coord.
-1475 poke v+8,255-z
-1476 poke v+9,255-z
-1480 next
-1490 return
+1400 rem sub: move sprites diagonally *
+1410 px(0)=px(0)-1: py(0)=py(0)-1
+1420 px(1)=px(1)+1: py(1)=py(1)+1
+1430 px(2)=px(2)+1: py(2)=py(2)-1
+1440 px(3)=px(3)-1: py(3)=py(3)+1
+1450 return
 
-1500 rem sub: place sprites ***********
-1505 pokev+8,66:pokev+16,16
-1506 pokev+9,229
-1510 pokev+10,22
-1520 pokev+11,49
-1530 pokev+12,22
-1540 pokev+13,229
-1550 pokev+14,66:pokev+16,128+16
-1560 pokev+15,49
-1570 return
+1500 rem sub: move 2 sprites horiz. ***
+1510 px(1)=px(1)+1
+1520 px(3)=px(3)-1
+1530 return
+
+1600 rem sub: init sprite posistions **
+1610 px(0)=322: py(0)=229
+1620 px(1)= 22: py(1)= 49
+1630 px(2)= 22: py(2)=229
+1640 px(3)=322: py(3)= 49
+1650 return
+
+1700 rem sub: set sprite coords. ******
+1710 for i=0 to 3
+1720 xl=px(i) and 255
+1730 if px(i)>255 then goto 1760
+1740 pokev+16,peek(v+16) and xc(i)
+1750 goto 1770
+1760 pokev+16,peek(v+16) or xs(i)
+1770 pokev+8+i*2,xl: pokev+9+i*2,py(i)
+1780 next
+1790 return
 
 10000 rem sprite data *****************
 10010 data ........,........,........
